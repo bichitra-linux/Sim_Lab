@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.stats import chi2
+from scipy.special import erfinv
 import itertools
 
 def load_random_numbers(filename):
