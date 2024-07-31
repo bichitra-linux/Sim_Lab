@@ -1,22 +1,28 @@
+import os
 import numpy as np
 from scipy.special import erfinv
 from tabulate import tabulate
 
 def load_random_numbers(filename, quantity):
     numbers = []
-    with open(filename, 'r') as file:
-        while len(numbers) < quantity:
-            line = file.readline().strip()
-            if line:  # Only process non-empty lines
-                try:
-                    number = float(line)
-                    numbers.append(number)
-                except ValueError:
-                    print(f"Skipping invalid line: {line}")
-            if not line:  # Stop reading if end of file is reached
-                break
-    if len(numbers) < quantity:
-        print(f"Warning: Only {len(numbers)} numbers were read from the file.")
+    try:
+        abs_path = os.path.abspath(filename)
+        print(f"Trying to open file at: {abs_path}")
+        with open(abs_path, 'r') as file:
+            while len(numbers) < quantity:
+                line = file.readline().strip()
+                if line:  # Only process non-empty lines
+                    try:
+                        number = float(line)
+                        numbers.append(number)
+                    except ValueError:
+                        print(f"Skipping invalid line: {line}")
+                if not line:  # Stop reading if end of file is reached
+                    break
+        if len(numbers) < quantity:
+            print(f"Warning: Only {len(numbers)} numbers were read from the file.")
+    except FileNotFoundError:
+        print(f"Error: The file '{filename}' was not found.")
     return numbers
 
 def autocorrelation_test(numbers, lag, alpha):
