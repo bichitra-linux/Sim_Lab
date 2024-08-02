@@ -1,4 +1,6 @@
+from matplotlib import pyplot as plt
 import numpy as np
+from scipy import stats
 from scipy.stats import chi2
 from scipy.special import erfinv
 import itertools
@@ -57,6 +59,31 @@ def poker_test(numbers, alpha):
     else:
         return "Rejected"
 
+def ks_test(data, alpha):
+    d, p_value = stats.kstest(data, 'uniform')
+    if p_value > alpha:
+        return "Accepted", d, p_value
+    else:
+        return "Rejected", d, p_value
+
+def chi_square_test(data, alpha, bins=10):
+    observed, bin_edges = np.histogram(data, bins=bins)
+    expected = len(data) / bins
+    chi_square_stat = ((observed - expected) ** 2 / expected).sum()
+    p_value = stats.chi2.sf(chi_square_stat, df=bins-1)
+    if p_value > alpha:
+        return "Accepted", chi_square_stat, p_value
+    else:
+        return "Rejected", chi_square_stat, p_value
+
+def plot_histogram(data, bins=10):
+    plt.hist(data, bins=bins, edgecolor='black')
+    plt.title('Histogram of Generated Random Numbers')
+    plt.xlabel('Value')
+    plt.ylabel('Frequency')
+    plt.show()
+
+
 if __name__ == "__main__":
     filename = input("Enter the filename containing random numbers: ")
     numbers = load_random_numbers(filename)
@@ -66,7 +93,9 @@ if __name__ == "__main__":
         print("1) Autocorrelation Test")
         print("2) Gap Test")
         print("3) Poker Test")
-        print("4) Exit")
+        print("4) KS Test")
+        print("5) Chi-Square Test")
+        print("6) Exit")
         choice = int(input("Enter your choice: "))
 
         if choice == 1:
@@ -85,6 +114,19 @@ if __name__ == "__main__":
             result = poker_test(numbers, alpha)
             print(f"Poker Test result: {result}")
         elif choice == 4:
+            alpha = float(input("Enter the significance level (alpha): "))
+            result, d, p_value = ks_test(numbers, alpha)
+            print(f"KS Test result: {result}")
+            print(f"D statistic: {d}")
+            print(f"P-value: {p_value}")
+        elif choice == 5:
+            alpha = float(input("Enter the significance level (alpha): "))
+            bins = int(input("Enter the number of bins: "))
+            result, chi_square_stat, p_value = chi_square_test(numbers, alpha, bins)
+            print(f"Chi-Square Test result: {result}")
+            print(f"Chi-Square statistic: {chi_square_stat}")
+            print(f"P-value: {p_value}")
+        elif choice == 6:
             print("Exiting the program.")
             break
         else:
